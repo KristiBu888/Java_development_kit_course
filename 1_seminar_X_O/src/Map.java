@@ -23,6 +23,25 @@ public class Map extends JPanel {
     private static final String MSG_WIN_AI = "Победил компьютер!";
     private static final String MSG_DRAW = "Ничья!"; 
 
+    private static final int MODE_HVA = 0;
+    private static final int MODE_HVH = 1;
+
+    // private void btnStartDelegate() {
+    //     int gameMode;
+    //     if (pvp.isSelected()) {
+    //         gameMode = Map.MODE_HVA; 
+    //     }else if (pvc.isSelected()) {
+    //         gameMode = Map.MODE_HVH;
+    //     }else {
+    //         throw new RuntimeException("Unknown game mode");  
+    //     }    
+    
+    //     int fieldSize = slideFieldSize.getValue();
+    //     int winLength = slideWinLen.getValue();
+    //     GameWindow.startNewGame(mode, fieldSize, fieldSize, winLength);
+    //     setVisible(false);
+    // }
+
     private int width, height, cellWidth, cellHeight; // ширина, высота, кол-во ячеек по ширине, кол-во ячеек по высоте
     private int mode, fieldSizeX, fieldSizeY, winLen; // mode пока не используется, размер ячейки по горизонтали, -||- по вертикали, необх. кол-во подряд идущих значений для победы
     private int[][] field; // в массив записываются все ходы
@@ -55,6 +74,7 @@ public class Map extends JPanel {
         gameStateType = STATE_GAME; // установлено состояние - игра идёт
 
         repaint(); // метод отрисовки
+        
     }
 
     private void update(MouseEvent mouseEvent) { // с помощью события, кот. получено слушателем нажатий mouseEvent, достаём координаты того куда мы нажали(Х,Y).
@@ -72,6 +92,7 @@ public class Map extends JPanel {
         checkEndGame(AI_DOT, STATE_WIN_AI); // проверяем закончена ли игра с победой AI_DOT
     }
 
+    
     private void testBoard(){ // выводит состояние каждой ячейки из которых состоит массив (для дебага)
         for (int i = 0; i < 3; i++) {
             System.out.println(Arrays.toString(field[i]));
@@ -87,21 +108,22 @@ public class Map extends JPanel {
         return field[y][x] == EMPTY_DOT;
     }
 
-    private void aiTurn() { // много раз делает рандом пока случайно не попадёт в ячейку
-        if (turnAIWinCell()) return;
-        if (turnHumanWinCell()) return;
+    private void aiTurn() { // много раз делает рандом пока случайно не попадёт в ячейку.
         int x, y;
         do {
             x = RANDOM.nextInt(fieldSizeX);
             y = RANDOM.nextInt(fieldSizeY);
         } while (!isEmptyCell(x, y)); // когда попал в пустую ячейку,
         field[y][x] = AI_DOT; // делает в неё свой ход
-    }
+        TurnAiWinCell();
+        TurnHumanWinCell();
 
-    private boolean turnAIWinCell() {
+    }
+    // Доработать алгоритм, чтобы он мог примитивно блокировать ходы игрока, и примитивно пытаться выиграть сам
+    private boolean TurnAiWinCell() { 
         for (int i = 0; i < fieldSizeY; i++) {
             for (int j = 0; j < fieldSizeX; j++) {
-                if (isEmptyCell(j, i)) {
+                if (isEmptyCell(i, j)){
                     field[i][j] = AI_DOT;
                     if (checkWin(AI_DOT)) return true;
                     field[i][j] = EMPTY_DOT;
@@ -110,18 +132,16 @@ public class Map extends JPanel {
         }
         return false;
     }
-
-    private boolean turnHumanWinCell() {
+    private boolean TurnHumanWinCell() {
         for (int i = 0; i < fieldSizeY; i++) {
             for (int j = 0; j < fieldSizeX; j++) {
-                if (isEmptyCell(j, i)) {
+                if (isEmptyCell(i, j)){
                     field[i][j] = HUMAN_DOT;
-                    if (checkWin(HUMAN_DOT)) {
-                        field[i][j] = HUMAN_DOT;
-                        return true;
-                    }
-                    field[i][j] = EMPTY_DOT;
+                    if (checkWin(HUMAN_DOT)) return true;
+                    field[i][j] = HUMAN_DOT;
+                    return true;
                 }
+                field[i][j] = EMPTY_DOT;
             }
         }
         return false;
@@ -164,8 +184,8 @@ public class Map extends JPanel {
     }
     // принимает(координаты ячейки(i, j) по кот. был щелчёк, куда будем шагать для проверки подряд идущих значений, длинна (значения подряд) кот. нужна, число по кот видим кто именно ходил (значения: крестик или нолик))
     private boolean checkLine(int x, int y, int vx, int vy, int len, int dot){
-        final int far_x = x + (len - 1) * vx;
-        final int far_y = y + (len - 1) * vy; // находим координаты следующей ячейки
+        int far_x = x + (len - 1) * vx;
+        int far_y = y + (len - 1) * vy; // находим координаты следующей ячейки
         if (!isValidCell(far_x, far_y)){
             return false;
         } // проверили что ячейка лежит на игровом поле
@@ -238,4 +258,5 @@ public class Map extends JPanel {
         }
         gameWork = false;
     }
+    
 }

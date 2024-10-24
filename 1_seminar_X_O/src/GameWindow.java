@@ -5,11 +5,11 @@ import javax.swing.*;
 
 public class GameWindow extends JFrame {
     private static final int WIDTH = 555;
-    private static final int HEIGHT = 507; // размеры
+    private static final int HEIGHT = 507; // размеры.
 
-    private JButton btnStart, btnExit; // виджеты (кнопки)
+    private JButton btnStart, btnExit; // виджеты (кнопки).
     private SettingWindow settingWindow;
-    private Map map; // отвечает за игру
+    private static Map map; // отвечает за игру.
 
     GameWindow(){ // класс конструктор
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // закрытие по нажатию на крестик
@@ -47,7 +47,7 @@ public class GameWindow extends JFrame {
         setVisible(true); // чтоб экран после всех настроек появился
     }
 
-    void startNewGame(int mode, int sizeX, int sizeY, int winLen){ // принимает mode, размеры и длинну(сколько подряд крестиков нужно выставить для победы)
+    static void startNewGame(int mode, int sizeX, int sizeY, int winLen){ // принимает mode, размеры и длинну(сколько подряд крестиков нужно выставить для победы)
         map.startNewGame(mode, sizeX, sizeY, winLen);
     }
 }
